@@ -17,17 +17,9 @@ def load_model():
     """
     global MODEL
     if MODEL is None:
-        # Option 1: Load from local file
+        
         MODEL = joblib.load(MODEL_FILE)
         
-        # Option 2: Alternatively, load from S3 (uncomment and configure if needed)
-        # import boto3, tempfile
-        # s3 = boto3.client('s3')
-        # BUCKET_NAME = os.environ.get("MODEL_S3_BUCKET", "your-s3-bucket")
-        # with tempfile.NamedTemporaryFile() as tmp:
-        #     s3.download_fileobj(BUCKET_NAME, MODEL_FILE, tmp)
-        #     tmp.seek(0)
-        #     MODEL = joblib.load(tmp)
     return MODEL
 
 # Define request schema using Pydantic
