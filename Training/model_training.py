@@ -22,7 +22,7 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD", "your_password")
 
 
 # Model output file
-MODEL_FILE = "model.pkl"
+MODEL_FILE = "models/model.pkl"
 
 # ----------------------------
 # LOAD DATA FUNCTION

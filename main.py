@@ -8,7 +8,7 @@ app = FastAPI()
 
 # Global model variable to be loaded once per application lifecycle.
 MODEL = None
-MODEL_FILE = "model.pkl"  # Ensure this file is available in your deployment
+MODEL_FILE = "models/model.pkl"  # Ensure this file is available in your deployment
 
 def load_model():
     """
