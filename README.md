@@ -11,10 +11,10 @@
 - Run the data preparation script:
 
 ```sh
-  python Training/data_preparation.py
+  python training/data_preparation.py
   ```
 
 - Run model_training.py script:
 ```sh
-  python Training/model_training.py
+  python training/model_training.py
   ```

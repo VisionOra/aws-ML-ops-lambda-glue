@@ -24,7 +24,7 @@ DB_NAME = os.environ.get("DB_NAME", "insurance_db")
 DB_USER = os.environ.get("DB_USER", "your_username")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "your_password")
 
-CSV_FILE = "insurance_data.csv"  # local CSV file; if using S3, adjust accordingly
+CSV_FILE = "training/insurance_data.csv"  # local CSV file; if using S3, adjust accordingly
 
 # ----------------------------
 # DATA PREPARATION FUNCTION
