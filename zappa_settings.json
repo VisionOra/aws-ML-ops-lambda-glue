@@ -1,0 +1,25 @@
+{
+    "dev": {
+        "app_function": "lambda_handler.handler",
+        "aws_region": "us-east-1",
+        "profile_name": "default",
+        "project_name": "abbas-ml-mlops",
+        "runtime": "python3.8",
+        "exclude": [
+            "*.pyc",
+            "tests/",
+            "docs/",
+            ".git/",
+            ".github/",
+            ".gitignore",
+            "training/",
+            "README.md",
+            ".env",
+            ".venv/"
+        ],
+        "slim_handler": true,
+        "keep_warm": false,
+        "timeout_seconds": 30,
+        "memory_size": 512
+    }
+}
