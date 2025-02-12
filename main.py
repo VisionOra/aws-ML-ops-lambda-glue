@@ -1,6 +1,7 @@
 import joblib
 import numpy as np
 import os
+import boto3
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -8,18 +9,24 @@ app = FastAPI()
 
 # Global model variable to be loaded once per application lifecycle.
 MODEL = None
-MODEL_FILE = "models/model.pkl"  # Ensure this file is available in your deployment
+MODEL_FILE = "model.pkl"  # Local path to save the model file
+S3_BUCKET = "abbas-mlops-model"
+S3_KEY = "abbas-mlops-model/model.pkl"
+
+def download_model_from_s3():
+    s3 = boto3.client('s3')
+    s3.download_file(S3_BUCKET, S3_KEY, MODEL_FILE)
 
 def load_model():
     """
     Loads the model from the local file if not already loaded.
-    Optionally, you can load from S3 by uncommenting and configuring the code below.
+    Downloads from S3 if the local file is not available.
     """
     global MODEL
     if MODEL is None:
-        
+        if not os.path.exists(MODEL_FILE):
+            download_model_from_s3()
         MODEL = joblib.load(MODEL_FILE)
-        
     return MODEL
 
 # Define request schema using Pydantic
@@ -34,10 +41,19 @@ class Features(BaseModel):
 class PredictionRequest(BaseModel):
     features: Features
 
+@app.get("/")
+def read_root():
+    return {"message": "Hello, world!"}
+
 @app.on_event("startup")
 def startup_event():
-    # Pre-load the model when the app starts (optional but recommended)
-    load_model()
+    print("Working directory:", os.getcwd())
+    print("Does model file exist?", os.path.exists(MODEL_FILE))
+    try:
+        load_model()
+        print("Model loaded successfully.")
+    except Exception as e:
+        print(f"Error loading model: {e}")
 
 @app.post("/predict")
 def predict(request: PredictionRequest):

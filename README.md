@@ -18,3 +18,14 @@
 ```sh
   python training/model_training.py
   ```
+
+### 3. Deploy through Zappa
+
+```sh
+zappa deploy dev
+```
+
+- After updation in code:
+```sh
+zappa update dev
+```
