@@ -3,7 +3,10 @@
 ### 1. AWS RDS (MySQL)
 - Launch an RDS MySQL instance.
 - Create a database (e.g., `insurance_db`) and configure the security group to allow access.
-- Update the .env file for Database connection
+- Copy `.env.example` to `.env` and update with your credentials:
+```sh
+cp .env.example .env
+```
 
 ### 2. Data Preparation
 - Place the raw CSV file (`insurance_data.csv`) in the project folder.
