@@ -1,0 +1,7 @@
+.chalice/deployments/
+.chalice/deployment-packages/
+__pycache__/
+*.pyc
+*.pkl
+.aws-sam/
+.env 

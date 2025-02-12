@@ -4,32 +4,58 @@ import os
 import boto3
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import logging
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Configure logging first
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Initialize FastAPI app
 app = FastAPI()
 
-# Global model variable to be loaded once per application lifecycle.
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Global model variable
 MODEL = None
-MODEL_FILE = "model.pkl"  # Local path to save the model file
-S3_BUCKET = "abbas-mlops-model"
-S3_KEY = "abbas-mlops-model/model.pkl"
+MODEL_FILE = "model.pkl"
+S3_BUCKET = os.getenv("S3_BUCKET")
+S3_KEY = os.getenv("S3_KEY")
 
 def download_model_from_s3():
-    s3 = boto3.client('s3')
-    s3.download_file(S3_BUCKET, S3_KEY, MODEL_FILE)
+    """Download the model from S3 with better error handling"""
+    try:
+        logger.info(f"Downloading model from S3 bucket: {S3_BUCKET}, key: {S3_KEY}")
+        s3 = boto3.client('s3')
+        s3.download_file(S3_BUCKET, S3_KEY, MODEL_FILE)
+        logger.info("Model downloaded successfully")
+    except Exception as e:
+        logger.error(f"Error downloading model from S3: {str(e)}")
+        raise RuntimeError(f"Failed to download model from S3: {str(e)}")
 
 def load_model():
-    """
-    Loads the model from the local file if not already loaded.
-    Downloads from S3 if the local file is not available.
-    """
+    """Load the model into the global variable"""
     global MODEL
-    if MODEL is None:
+    try:
         if not os.path.exists(MODEL_FILE):
             download_model_from_s3()
         MODEL = joblib.load(MODEL_FILE)
-    return MODEL
+        return MODEL
+    except Exception as e:
+        logger.error(f"Error loading model: {str(e)}")
+        raise
 
-# Define request schema using Pydantic
 class Features(BaseModel):
     age: float
     annual_premium: float
@@ -42,42 +68,62 @@ class PredictionRequest(BaseModel):
     features: Features
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello, world!"}
+async def root():
+    return {"message": "Hello World"}
 
 @app.on_event("startup")
-def startup_event():
-    print("Working directory:", os.getcwd())
-    print("Does model file exist?", os.path.exists(MODEL_FILE))
+async def startup_event():
+    """Initialize the model when the app starts"""
     try:
+        logger.info("Starting up FastAPI application")
         load_model()
-        print("Model loaded successfully.")
+        logger.info("Model loaded successfully")
     except Exception as e:
-        print(f"Error loading model: {e}")
+        logger.error(f"Startup error: {str(e)}")
+        raise RuntimeError(f"Failed to initialize the application: {str(e)}")
+
+@app.post("/load-model")
+async def load_model_endpoint():
+    """
+    Endpoint to manually trigger model download from S3 and load it into RAM
+    """
+    try:
+        logger.info("Manual model reload triggered")
+        
+        # Remove existing model file to force fresh download
+        if os.path.exists(MODEL_FILE):
+            os.remove(MODEL_FILE)
+            logger.info("Removed existing model file")
+        
+        # Load model (this will trigger download and load)
+        load_model()
+        
+        return {
+            "status": "success",
+            "message": "Model successfully downloaded and loaded",
+            "details": {
+                "model_file": MODEL_FILE,
+                "s3_bucket": S3_BUCKET,
+                "s3_key": S3_KEY
+            }
+        }
+    except Exception as e:
+        logger.error(f"Error loading model: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to load model: {str(e)}"
+        )
 
 @app.post("/predict")
 def predict(request: PredictionRequest):
     """
-    Expects a JSON payload with the following structure:
-    {
-        "features": {
-            "age": <value>,
-            "annual_premium": <value>,
-            "claims_count": <value>,
-            "policy_auto": <value>,   # one-hot encoded for auto
-            "policy_home": <value>,   # one-hot encoded for home
-            "policy_life": <value>    # one-hot encoded for life
-        }
-    }
-    
-    Returns a JSON response with the predicted class and, if available, the prediction probabilities.
+    Make predictions using the loaded model
     """
     try:
-        # Extract the features from the request
-        features = request.features
+        if MODEL is None:
+            load_model()
 
-        # Create a numpy array in the order used during training.
-        # Ensure that the order here matches the order used during training.
+        features = request.features
         input_data = np.array([
             features.age,
             features.annual_premium,
@@ -87,13 +133,19 @@ def predict(request: PredictionRequest):
             features.policy_life
         ]).reshape(1, -1)
 
-        # Load the model (will be loaded only once per application lifecycle)
-        model = load_model()
-        prediction = model.predict(input_data)
+        prediction = MODEL.predict(input_data)
         probability = None
-        if hasattr(model, "predict_proba"):
-            probability = model.predict_proba(input_data).tolist()
+        if hasattr(MODEL, "predict_proba"):
+            probability = MODEL.predict_proba(input_data).tolist()
 
-        return {"prediction": int(prediction[0]), "probability": probability}
-    except Exception as e:
+        return {
+            "prediction": int(prediction[0]),
+            "probability": probability
+        }
+    except StopIteration as e:
+        
         raise HTTPException(status_code=400, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
