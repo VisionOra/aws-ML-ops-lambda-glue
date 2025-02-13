@@ -29,9 +29,9 @@ app.add_middleware(
 
 # Global model variable
 MODEL = None
-MODEL_FILE = "model.pkl"
-S3_BUCKET = os.getenv("S3_BUCKET")
-S3_KEY = os.getenv("S3_KEY")
+MODEL_FILE = "models/model.pkl"
+S3_BUCKET = os.getenv("BUCKET")
+S3_KEY = os.getenv("KEY")
 
 def download_model_from_s3():
     """Download the model from S3 with better error handling"""
@@ -49,12 +49,17 @@ def load_model():
     global MODEL
     try:
         if not os.path.exists(MODEL_FILE):
+            logger.warning(f"Model file {MODEL_FILE} not found! Attempting to download.")
             download_model_from_s3()
+
+        logger.info(f"Loading model from {MODEL_FILE}")
         MODEL = joblib.load(MODEL_FILE)
+        logger.info("Model loaded successfully!")
         return MODEL
     except Exception as e:
         logger.error(f"Error loading model: {str(e)}")
         raise
+
 
 class Features(BaseModel):
     age: float
@@ -149,8 +154,8 @@ def predict(request: PredictionRequest):
 import json
 
 
-def lambda_handler(event, context):
-    return {"statusCode": 200, "body": "Hello from Lambda"}
+from mangum import Mangum
+lambda_handler = Mangum(app)
 
 
 if __name__ == "__main__":

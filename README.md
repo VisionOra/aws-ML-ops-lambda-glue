@@ -45,3 +45,35 @@ Run the container:
 ```sh
 docker run -p 8000:8000 --env-file .env insurance-app
 ```
+### 5. Deploy on AWS Lmabda
+
+- Build Image:
+
+```sh
+docker buildx build --platform linux/amd64 --no-cache -t insurance-app . -f Dockerfile.aws
+```
+
+- Tag Image:
+
+```sh
+docker tag insurance-app:latest 273354662169.dkr.ecr.us-east-1.amazonaws.com/insurance-app:latest 
+```
+- Push Image on ec2:
+
+```sh
+docker push 273354662169.dkr.ecr.us-east-1.amazonaws.com/insurance-app:latest
+```
+- Deploy/update code Lambda function:
+
+```sh
+aws lambda update-function-code \    --function-name abbas-insurance-app \
+    --image-uri 273354662169.dkr.ecr.us-east-1.amazonaws.com/insurance-app:latest \
+    --region us-east-1
+  ```
+
+- Set enviroment variables
+
+```sh
+aws lambda update-function-configuration \    --function-name abbas-insurance-app \
+    --environment "Variables={BUCKET=abbas-mlops-model,KEY=model.pkl}"
+    ```
