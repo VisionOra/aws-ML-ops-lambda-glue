@@ -3,7 +3,7 @@
         "app_function": "lambda_handler.handler",
         "aws_region": "us-east-1",
         "profile_name": "default",
-        "project_name": "abbas-ml-mlops",
+        "project_name": "abbas-ml-mlops-deploy",
         "runtime": "python3.8",
         "exclude": [
             "*.pyc",

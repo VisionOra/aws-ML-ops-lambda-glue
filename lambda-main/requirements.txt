@@ -1,0 +1,5 @@
+joblib
+numpy
+boto3
+pydantic
+scikit-learn
