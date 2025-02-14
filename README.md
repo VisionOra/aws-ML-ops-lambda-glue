@@ -66,7 +66,7 @@ docker push 273354662169.dkr.ecr.us-east-1.amazonaws.com/insurance-app:latest
 - Deploy/update code Lambda function:
 
 ```sh
-aws lambda update-function-code \    --function-name abbas-insurance-app \
+aws lambda update-function-code \    --function-name insurance-app \
     --image-uri 273354662169.dkr.ecr.us-east-1.amazonaws.com/insurance-app:latest \
     --region us-east-1
   ```
@@ -74,6 +74,6 @@ aws lambda update-function-code \    --function-name abbas-insurance-app \
 - Set enviroment variables
 
 ```sh
-aws lambda update-function-configuration \    --function-name abbas-insurance-app \
+aws lambda update-function-configuration \    --function-name insurance-app \
     --environment "Variables={BUCKET=abbas-mlops-model,KEY=model.pkl}"
     ```
