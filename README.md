@@ -70,7 +70,7 @@ integerate it with S3, whenever new file **insurance_data.csv** uploaded, the tr
 
 Make EventBridge that enabled for Succeeded data-preperation job, in code make a trigger for model_training job.(Allow permissions for Lambda functions and in Lambda function allow permissions for event put and target).
 
-### 5. Flow
+### 8. Flow
 
 - Make S3 bucket and set enviroment variables for lambda function(BUCKET, KEY)
 - Make DockerImage, tag and push on ec2
@@ -79,3 +79,20 @@ Make EventBridge that enabled for Succeeded data-preperation job, in code make a
 - Upload the new insurance_data.csv on AWS S3
 - Test and Run the process. 
 - Here is the Detail video link(https://www.loom.com/share/23b58a56a046493fa38daa75171ac83b?sid=69e7ac6e-5d51-4d39-b3d4-b2d2b3dabd15)
+
+### 9. Testing Link(You can test the Lambda Function on postman):
+
+https://jux5ea6bfhuslk6zqvft34ocmi0peiah.lambda-url.us-east-1.on.aws/predict
+
+- Body:
+{
+  "features": {
+    "age": 50,
+    "annual_premium": 2000,
+    "claims_count": 1,
+    "policy_auto": 1,
+    "policy_home": 0,
+    "policy_life": 0
+  }
+}
+
