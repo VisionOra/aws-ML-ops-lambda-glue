@@ -65,3 +65,4 @@ pandas,numpy,SQLAlchemy,scikit-learn,psycopg2-binary as value
 - Make jobs for data_prepration and model_training on AWS Glue(Replace the S3 bucket and key and RDS credentials)
 - Upload the new insurance_data.csv on AWS S3
 - Test and Run the process. 
+- Here is the Detail video link(https://www.loom.com/share/b8b8deb5fca74f3fb617938b163a0910?sid=2031f86c-a0cd-400c-b96a-501b99f17018)
