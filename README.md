@@ -57,6 +57,19 @@ aws lambda update-function-configuration \    --function-name insurance-app \
 --additional-python-modules as key
 pandas,numpy,SQLAlchemy,scikit-learn,psycopg2-binary as value
 
+### 5. Use model_training.py script as a glue job and set job parameters in job details as 
+
+--additional-python-modules as key
+pandas,numpy,SQLAlchemy,scikit-learn,psycopg2-binary as value
+
+### 6. Make lambda function for trigger_data_prep
+
+integerate it with S3, whenever new file **insurance_data.csv** uploaded, the trigger runs the data_preperation job on glue.
+
+### 7. M### 6. Make lambda function for trigger_model_training
+
+Make EventBridge that enabled for Succeeded data-preperation job, in code make a trigger for model_training job.(Allow permissions for Lambda functions and in Lambda function allow permissions for event put and target).
+
 ### 5. Flow
 
 - Make S3 bucket and set enviroment variables for lambda function(BUCKET, KEY)
@@ -65,4 +78,4 @@ pandas,numpy,SQLAlchemy,scikit-learn,psycopg2-binary as value
 - Make jobs for data_prepration and model_training on AWS Glue(Replace the S3 bucket and key and RDS credentials)
 - Upload the new insurance_data.csv on AWS S3
 - Test and Run the process. 
-- Here is the Detail video link(https://www.loom.com/share/b8b8deb5fca74f3fb617938b163a0910?sid=2031f86c-a0cd-400c-b96a-501b99f17018)
+- Here is the Detail video link(https://www.loom.com/share/23b58a56a046493fa38daa75171ac83b?sid=69e7ac6e-5d51-4d39-b3d4-b2d2b3dabd15)
