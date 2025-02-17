@@ -8,33 +8,7 @@
 cp .env.example .env
 ```
 
-### 2. Data Preparation
-- Place the raw CSV file (`insurance_data.csv`) in the project folder.
-- Run the data preparation script:
-
-## Python 3.9
-
-```sh
-  python training/data_preparation.py
-  ```
-
-- Run model_training.py script:
-```sh
-  python training/model_training.py
-  ```
-
-### 3. Deploy through Zappa
-
-```sh
-zappa deploy dev
-```
-
-- After updation in code:
-```sh
-zappa update dev
-```
-
-### 4. Docker Setup (Alternative)
+### 2. Docker Setup (Alternative)
 
 Build the Docker image:
 ```sh
@@ -45,7 +19,7 @@ Run the container:
 ```sh
 docker run -p 8000:8000 --env-file .env insurance-app
 ```
-### 5. Deploy on AWS Lmabda
+### 3. Deploy on AWS Lmabda
 
 - Build Image:
 
@@ -78,15 +52,16 @@ aws lambda update-function-configuration \    --function-name insurance-app \
     --environment "Variables={BUCKET=abbas-mlops-model,KEY=model.pkl}"
   ```
 
-### 6. Use data_preperation.py script as a glue job and set job parameters in job details as 
+### 4. Use data_preperation.py script as a glue job and set job parameters in job details as 
 
 --additional-python-modules as key
 pandas,numpy,SQLAlchemy,scikit-learn,psycopg2-binary as value
 
-### 7. Flow
+### 5. Flow
 
 - Make S3 bucket and set enviroment variables for lambda function(BUCKET, KEY)
 - Make DockerImage, tag and push on ec2
 - update or make lambda function
 - Make jobs for data_prepration and model_training on AWS Glue(Replace the S3 bucket and key and RDS credentials)
+- Upload the new insurance_data.csv on AWS S3
 - Test and Run the process. 
