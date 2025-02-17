@@ -76,4 +76,17 @@ aws lambda update-function-code \    --function-name insurance-app \
 ```sh
 aws lambda update-function-configuration \    --function-name insurance-app \
     --environment "Variables={BUCKET=abbas-mlops-model,KEY=model.pkl}"
-    ```
+  ```
+
+### 6. Use data_preperation.py script as a glue job and set job parameters in job details as 
+
+--additional-python-modules as key
+pandas,numpy,SQLAlchemy,scikit-learn,psycopg2-binary as value
+
+### 7. Flow
+
+- Make S3 bucket and set enviroment variables for lambda function(BUCKET, KEY)
+- Make DockerImage, tag and push on ec2
+- update or make lambda function
+- Make jobs for data_prepration and model_training on AWS Glue(Replace the S3 bucket and key and RDS credentials)
+- Test and Run the process. 
